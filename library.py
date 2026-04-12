@@ -2,6 +2,14 @@ import sys
 import json
 
 libraryDatabase = []
+libraryFile = 'library.json'
+
+try: 
+    with open(libraryFile) as f: 
+        libraryDatabase = json.load(f)
+except: 
+        libraryDatabase = []
+
 
 def menu():
     print('[ Welcome to the Library ]')
@@ -62,6 +70,11 @@ def addBooks(libraryDatabase):
     }
 
     libraryDatabase.append(book)
+
+    # open/create json, use writing mode, set file as f, and dump data into json
+    with open(libraryFile, 'w') as f: 
+        json.dump(libraryDatabase, f)
+
     print(f"{book['title']} added!\n")
     
 
@@ -132,9 +145,13 @@ def checkout(selectedBook):
     # user should not be able to check out book that is unavailable
     if selectedBook["availability"] == "unavailable": 
         print('*error, this book is already checked out\n')
+        
     elif selectedBook["availability"] == 'available': 
         selectedBook["availability"] = "unavailable"
         print(selectedBook['title'], 'has now been checkout...\n')
+        with open(libraryFile, "w") as f: 
+            json.dump(libraryDatabase, f)
+
 
 def returnBook(selectedBook): 
     print('\n---Return Book---')
@@ -143,14 +160,10 @@ def returnBook(selectedBook):
     if selectedBook["availability"] == 'unavailable':
         selectedBook["availability"] = 'available'
         print(selectedBook['title'], 'has been returned...\n' )
+        with open(libraryFile, "w") as f: 
+            json.dump(libraryDatabase, f)
+
     elif selectedBook["availability"] == 'available':
         print('*error, book has already been returned\n') 
-
-def loadData(): 
-    file = open('libraryDatabase.txt', 'r')
-    print(file.read())
-    
-loadData()
-
 
 menu()
