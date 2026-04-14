@@ -7,7 +7,7 @@ libraryFile = 'library.json'
 try: 
     with open(libraryFile) as f: 
         libraryDatabase = json.load(f)
-except: 
+except FileNotFoundError: 
         libraryDatabase = []
 
 
@@ -28,21 +28,21 @@ def menu():
                 if response == 'n':
                     break
                 if response == 'y': 
-                    addBooks(libraryDatabase)
+                    addBooks()
                 else: 
                     print('*error, incorrect selection\n')
         elif response == '2':
-            viewBooks(libraryDatabase)
+            viewBooks()
         elif response == '3':
             print('\n---Seach for Books---')
             title = input("enter title of book you'd like to search('q' to quit): ").lower()
-            searchBooks(libraryDatabase, title)
+            searchBooks(title)
         elif response == '4':
             sys.exit()
         else: 
             print('*error, incorrect selection\n')
     
-def addBooks(libraryDatabase):
+def addBooks():
     print('\n---Add a Book Here!---')
     title = input('enter title of book: ')
     author = input('enter author: ')
@@ -72,22 +72,23 @@ def addBooks(libraryDatabase):
     libraryDatabase.append(book)
 
     # open/create json, use writing mode, set file as f, and dump data into json
-    with open(libraryFile, 'w') as f: 
-        json.dump(libraryDatabase, f)
+    saveLibrary()
 
     print(f"{book['title']} added!\n")
     
 
-def viewBooks(libraryDatabase): 
+def viewBooks(): 
     count = 1
     print('\n---Viewing All Books---')
-    #loop through and get 
+    if len(libraryDatabase) < 1: 
+        print('no books on display...\n')
+        return
     for book in libraryDatabase:
         print(f'{count}.')
         print(f'Book title: {book["title"]} \nAuthor: {book["author"]} \nYear: {book["year"]} \nAvailability: {book["availability"]}\n')
         count += 1
 
-def searchBooks(libraryDatabase, title):
+def searchBooks(title):
     count = 1
 
     print('\n-Books-')
@@ -127,12 +128,16 @@ def searchBooks(libraryDatabase, title):
 
     # allow user to checkout or return
     while True:
-        response = input(f"would you like to checkout or return, {selectedBook['title']} ('q' to exit): ").lower()     
+        response = input(f"would you like to checkout, return, or delete {selectedBook['title']} ('q' to exit): ").lower()     
         if response == 'checkout':
             checkout(selectedBook)
             break
         elif response == 'return':
             returnBook(selectedBook)
+            break
+        elif response == 'delete': 
+            deleteBook(selectedBook)
+            break
         elif response == 'q':
             break
         else:
@@ -149,8 +154,8 @@ def checkout(selectedBook):
     elif selectedBook["availability"] == 'available': 
         selectedBook["availability"] = "unavailable"
         print(selectedBook['title'], 'has now been checkout...\n')
-        with open(libraryFile, "w") as f: 
-            json.dump(libraryDatabase, f)
+        # update library database
+        saveLibrary()
 
 
 def returnBook(selectedBook): 
@@ -160,10 +165,27 @@ def returnBook(selectedBook):
     if selectedBook["availability"] == 'unavailable':
         selectedBook["availability"] = 'available'
         print(selectedBook['title'], 'has been returned...\n' )
-        with open(libraryFile, "w") as f: 
-            json.dump(libraryDatabase, f)
-
+        # update library database
+        saveLibrary()
     elif selectedBook["availability"] == 'available':
         print('*error, book has already been returned\n') 
+
+def deleteBook(selectedBook): 
+    print('\n---Delete Book---')
+
+    if selectedBook["availability"] == 'unavailable': 
+        print('Can not delete a book that is unavailable\n')
+        return
+    
+    libraryDatabase.remove(selectedBook)
+    print(f"{selectedBook['title']} has been deleted...\n" )
+    saveLibrary()
+
+def saveLibrary(): 
+    with open(libraryFile, "w") as f: 
+        json.dump(libraryDatabase, f)
+
+            
+
 
 menu()
