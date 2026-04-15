@@ -1,2 +1,4 @@
 # Library-repo
-A libaray database that stores book information, checkout stored books, return books, and more!
+CLI Library Application
+Includes a return, checkout, delete, and add book feature. Uses json file to store book information and updates accordingly. 
+
