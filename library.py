@@ -7,8 +7,13 @@ libraryFile = 'library.json'
 try: 
     with open(libraryFile) as f: 
         libraryDatabase = json.load(f)
+<<<<<<< Updated upstream
 except (FileNotFoundError): 
     libraryDatabase = []
+=======
+except (FileNotFoundError, json.JSONDecodeError): 
+        libraryDatabase = []
+>>>>>>> Stashed changes
 
 
 def menu():
